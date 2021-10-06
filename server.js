@@ -52,7 +52,8 @@ app.post('/api/users', (req, res) => {
 });
 
 app.post('/api/users/:_id/exercises', (req, res) => {
-  const {_id, description, duration, date} = req.body;
+  const {_id} = req.params;
+  const {description, duration, date} = req.body;
   const dateString = date
     ? new Date(date).toDateString() : new Date().toDateString();
   const durationNumber = Number(duration);
@@ -96,12 +97,13 @@ app.get('/api/users/:_id/logs', (req, res) => {
     const min = new Date(from).valueOf();
     const max = new Date(to).valueOf();
     const limitedLog = log.filter(object => {
-      console.log('object', object);
       const {date} = object;
       const value = new Date(date).valueOf();
       const pass = value >= min && value <= max;
       return pass;
-    }).filter((value, index) => index < limit);
+    }).filter((value, index) => {
+      return !limit ? value : index < limit;
+    });
     const count = limitedLog.length;
     return res.json({
       _id, username, from: new Date(from).toDateString(),
